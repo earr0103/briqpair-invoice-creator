@@ -4,10 +4,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { InventoryItem } from "./inventory/columns";
+import { useNavigate } from "react-router-dom";
+import { generateInvoice } from "@/lib/invoiceGenerator";
 
 export const Cart = () => {
   const [items, setItems] = useState<(InventoryItem & { quantity: number })[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const removeFromCart = (id: string) => {
     setItems(items.filter(item => item.id !== id));
@@ -18,6 +21,44 @@ export const Cart = () => {
   };
 
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleCheckout = async () => {
+    if (items.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Please add items to your cart before checking out",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // In a real app, this would process payment first
+      const invoice = await generateInvoice({
+        items,
+        total,
+        date: new Date().toISOString(),
+        status: "paid"
+      });
+
+      toast({
+        title: "Order successful",
+        description: "Your invoice has been generated"
+      });
+
+      // Clear cart
+      setItems([]);
+      
+      // Navigate to invoices page
+      navigate("/invoices");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process order",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <Card className="p-6">
@@ -53,8 +94,8 @@ export const Cart = () => {
               <span>Total:</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <Button className="w-full mt-4">
-              Generate Invoice
+            <Button className="w-full mt-4" onClick={handleCheckout}>
+              Checkout
             </Button>
           </div>
         </div>
