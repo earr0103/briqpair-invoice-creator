@@ -2,10 +2,10 @@ import { Card } from "@/components/ui/card";
 import { Sidebar } from "@/components/Sidebar";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Plus, ShoppingCart } from "lucide-react";
+import { Plus } from "lucide-react";
 import { columns } from "@/components/inventory/columns";
 import { useInventoryItems } from "@/hooks/useInventoryItems";
-import { Cart } from "@/components/Cart";
+import { StockManager } from "@/components/inventory/StockManager";
 
 const Inventory = () => {
   const { data: items, isLoading } = useInventoryItems();
@@ -26,20 +26,13 @@ const Inventory = () => {
             </Button>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card className="p-6">
-                {isLoading ? (
-                  <div className="flex justify-center p-8">Loading...</div>
-                ) : (
-                  <DataTable columns={columns} data={items || []} />
-                )}
-              </Card>
-            </div>
-            <div>
-              <Cart />
-            </div>
-          </div>
+          <Card className="p-6">
+            {isLoading ? (
+              <div className="flex justify-center p-8">Loading...</div>
+            ) : (
+              <DataTable columns={columns} data={items || []} />
+            )}
+          </Card>
         </div>
       </main>
     </div>

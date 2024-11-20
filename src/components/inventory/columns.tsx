@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ShoppingCart } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { StockManager } from "./StockManager";
 
 export type InventoryItem = {
   id: string;
@@ -47,12 +48,21 @@ export const columns: ColumnDef<InventoryItem>[] = [
     header: "Stock",
   },
   {
+    id: "stock-management",
+    header: "Stock Management",
+    cell: ({ row }) => {
+      return <StockManager item={row.original} onUpdate={(id, newStock) => {
+        // In a real app, this would update the database
+        console.log(`Updating stock for ${id} to ${newStock}`);
+      }} />;
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const { toast } = useToast();
       
       const handleAddToCart = () => {
-        // In a real app, this would update a cart state or context
         toast({
           title: "Added to cart",
           description: `${row.original.name} has been added to your cart`
