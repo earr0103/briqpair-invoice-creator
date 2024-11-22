@@ -1,8 +1,10 @@
-import { FileText, Home, CreditCard, Users, Settings, LogOut, Package, ShoppingCart } from "lucide-react";
+import { FileText, Home, CreditCard, Users, Settings, LogOut, Package, ShoppingCart, Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "./ThemeProvider";
 
 export const Sidebar = () => {
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
   
   const links = [
     { icon: Home, label: "Dashboard", path: "/" },
@@ -15,7 +17,7 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-sidebar text-white flex flex-col">
+    <aside className="w-64 bg-sidebar dark:bg-gray-900 text-white flex flex-col">
       <div className="p-6">
         <h1 className="text-2xl font-bold">BriqPair</h1>
       </div>
@@ -33,7 +35,14 @@ export const Sidebar = () => {
         ))}
       </nav>
       
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-white/10 space-y-2">
+        <button 
+          className="sidebar-link w-full"
+          onClick={toggleTheme}
+        >
+          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+          {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+        </button>
         <button className="sidebar-link w-full">
           <LogOut className="w-5 h-5" />
           Logout

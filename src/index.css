@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-content text-gray-900;
+    @apply bg-content dark:bg-gray-900 text-gray-900 dark:text-gray-100;
   }
 }
 
@@ -18,10 +18,10 @@
   }
   
   .stat-card {
-    @apply bg-white p-6 rounded-xl shadow-sm animate-fade-in;
+    @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm animate-fade-in;
   }
   
   .dashboard-card {
-    @apply bg-white rounded-xl shadow-sm p-6 animate-scale-in;
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 animate-scale-in;
   }
 }
