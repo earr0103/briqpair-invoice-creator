@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
-import { TrendUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { InventoryItem } from "./inventory/columns";
 
 export const TrendingProducts = () => {
@@ -33,7 +33,7 @@ export const TrendingProducts = () => {
               <p className="text-sm font-medium">${product.price}</p>
             </div>
             <div className="flex items-center text-green-500">
-              <TrendUp className="w-4 h-4 mr-1" />
+              <TrendingUp className="w-4 h-4 mr-1" />
               <span className="text-sm font-medium">{product.growth}</span>
             </div>
           </div>
