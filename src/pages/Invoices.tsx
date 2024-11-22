@@ -2,8 +2,9 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
+import { toast } from "sonner";
 
 type Invoice = {
   id: string;
@@ -54,6 +55,24 @@ const columns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "date",
     header: "Date",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const invoice = row.original;
+      return (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            toast.info("PDF viewer will be implemented with Python backend");
+          }}
+          className="hover:bg-transparent"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      );
+    },
   },
 ];
 
