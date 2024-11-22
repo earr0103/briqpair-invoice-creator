@@ -46,6 +46,7 @@ const Settings = () => {
                     <Switch
                       checked={theme === 'dark'}
                       onCheckedChange={handleThemeChange}
+                      aria-label="Toggle theme"
                     />
                   </div>
                 </div>
