@@ -1,21 +1,12 @@
-import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "@/components/ThemeProvider";
 import { Label } from "@/components/ui/label";
+import { Sidebar } from "@/components/Sidebar";
 import { toast } from "sonner";
 
 const Settings = () => {
-  const { theme, toggleTheme } = useTheme();
-
-  const handleThemeChange = () => {
-    toggleTheme();
-    toast.success(`Theme changed to ${theme === 'light' ? 'dark' : 'light'} mode`);
-  };
-
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -26,32 +17,11 @@ const Settings = () => {
             <p className="text-gray-500 dark:text-gray-400">Manage your account settings</p>
           </header>
 
-          <Tabs defaultValue="appearance" className="w-full">
+          <Tabs defaultValue="profile" className="w-full">
             <TabsList className="mb-4">
-              <TabsTrigger value="appearance">Appearance</TabsTrigger>
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="appearance">
-              <Card className="p-6">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-base">Dark Mode</Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Toggle between light and dark themes
-                      </p>
-                    </div>
-                    <Switch
-                      checked={theme === 'dark'}
-                      onCheckedChange={handleThemeChange}
-                      aria-label="Toggle theme"
-                    />
-                  </div>
-                </div>
-              </Card>
-            </TabsContent>
 
             <TabsContent value="profile">
               <Card className="p-6">
