@@ -7,21 +7,41 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { useInventoryItems } from "@/hooks/useInventoryItems";
 import { InventoryItem } from "@/components/inventory/columns";
+import { useToast } from "@/components/ui/use-toast";
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: inventoryItems } = useInventoryItems();
+  const { data: inventoryItems, isLoading } = useInventoryItems();
   const [searchResults, setSearchResults] = useState<InventoryItem[]>([]);
+  const { toast } = useToast();
 
   const handleSearch = () => {
-    if (!searchTerm || !inventoryItems) return;
+    if (!searchTerm || !inventoryItems) {
+      setSearchResults([]);
+      return;
+    }
 
     const results = inventoryItems.filter(
       (item) =>
         item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (results.length === 0) {
+      toast({
+        title: "No results found",
+        description: "Try searching with a different term",
+        variant: "destructive"
+      });
+    }
+
     setSearchResults(results);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
@@ -42,35 +62,46 @@ const Orders = () => {
                   placeholder="Search by SKU or product name"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  onKeyPress={handleKeyPress}
                 />
                 <Button onClick={handleSearch}>
                   <Search className="w-4 h-4" />
                 </Button>
               </div>
 
-              {searchResults.length > 0 && (
-                <div className="space-y-4">
-                  {searchResults.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between border-b pb-2"
-                    >
-                      <div>
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-500">SKU: {item.sku}</p>
-                        <p className="text-sm text-gray-500">
-                          Stock: {item.stock}
-                        </p>
+              {isLoading ? (
+                <div className="flex justify-center p-4">Loading...</div>
+              ) : (
+                searchResults.length > 0 && (
+                  <div className="space-y-4">
+                    {searchResults.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between border-b pb-2"
+                      >
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                          <p className="text-sm text-gray-500">
+                            Stock: {item.stock}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">
+                            ${item.price.toFixed(2)}
+                          </p>
+                          <Button
+                            size="sm"
+                            className="mt-2"
+                            disabled={item.stock === 0}
+                          >
+                            Add to Cart
+                          </Button>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium">
-                          ${item.price.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )
               )}
             </Card>
 

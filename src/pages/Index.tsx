@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { WeeklyStats } from "@/components/WeeklyStats";
 import { PaymentDistribution } from "@/components/PaymentDistribution";
 import { SalesChart } from "@/components/SalesChart";
-import { CustomerMap } from "@/components/CustomerMap";
+import { TrendingProducts } from "@/components/TrendingProducts";
 
 const Index = () => {
   return (
@@ -39,10 +39,7 @@ const Index = () => {
             </Card>
           </div>
 
-          <Card className="dashboard-card">
-            <h2 className="text-lg font-semibold mb-4">Customer Locations</h2>
-            <CustomerMap />
-          </Card>
+          <TrendingProducts />
         </div>
       </main>
     </div>
