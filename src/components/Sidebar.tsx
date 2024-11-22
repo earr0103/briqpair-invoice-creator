@@ -1,4 +1,4 @@
-import { FileText, Home, CreditCard, Users, Settings, LogOut, Package } from "lucide-react";
+import { FileText, Home, CreditCard, Users, Settings, LogOut, Package, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export const Sidebar = () => {
@@ -7,6 +7,7 @@ export const Sidebar = () => {
   const links = [
     { icon: Home, label: "Dashboard", path: "/" },
     { icon: Package, label: "Inventory", path: "/inventory" },
+    { icon: ShoppingCart, label: "Orders", path: "/orders" },
     { icon: FileText, label: "Invoices", path: "/invoices" },
     { icon: CreditCard, label: "Payments", path: "/payments" },
     { icon: Users, label: "Customers", path: "/customers" },
