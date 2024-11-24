@@ -9,6 +9,7 @@ import { useInventoryItems } from "@/hooks/useInventoryItems";
 import { InventoryItem } from "@/components/inventory/columns";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +17,7 @@ const Orders = () => {
   const [searchResults, setSearchResults] = useState<InventoryItem[]>([]);
   const { toast } = useToast();
   const [selectedItems, setSelectedItems] = useState<(InventoryItem & { quantity: number })[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSearch = () => {
     if (!searchTerm || !inventoryItems) {
@@ -75,9 +77,9 @@ const Orders = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="p-6">
-              <Dialog>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="w-full mb-4">
+                  <Button className="w-full mb-4 bg-primary hover:bg-primary/90 transition-colors">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Products
                   </Button>
@@ -93,40 +95,54 @@ const Orders = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyPress={handleKeyPress}
+                        className="flex-1"
                       />
-                      <Button onClick={handleSearch}>
+                      <Button 
+                        onClick={handleSearch}
+                        variant="secondary"
+                        className="hover:bg-secondary/80 transition-colors"
+                      >
                         <Search className="w-4 h-4" />
                       </Button>
                     </div>
 
                     {isLoading ? (
-                      <div className="flex justify-center p-4">Loading...</div>
+                      <div className="flex justify-center p-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
                     ) : (
                       searchResults.length > 0 && (
-                        <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto">
-                          {searchResults.map((item) => (
-                            <Card key={item.id} className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <h3 className="font-medium">{item.name}</h3>
-                                  <p className="text-sm text-gray-500">SKU: {item.sku}</p>
-                                  <p className="text-sm text-gray-500">
-                                    Stock: {item.stock}
-                                  </p>
-                                  <p className="font-medium mt-1">
-                                    ${item.price.toFixed(2)}
-                                  </p>
+                        <ScrollArea className="h-[400px] rounded-md border p-4">
+                          <div className="grid grid-cols-1 gap-4">
+                            {searchResults.map((item) => (
+                              <Card key={item.id} className="p-4 hover:bg-accent/50 transition-colors">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h3 className="font-medium">{item.name}</h3>
+                                    <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                                    <p className="text-sm text-gray-500">
+                                      Stock: {item.stock}
+                                    </p>
+                                    <p className="font-medium mt-1 text-primary">
+                                      ${item.price.toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <Button
+                                    onClick={() => {
+                                      addToCart(item);
+                                      setIsDialogOpen(false);
+                                    }}
+                                    disabled={item.stock === 0}
+                                    variant="secondary"
+                                    className="hover:bg-secondary/80 transition-colors"
+                                  >
+                                    Add to Cart
+                                  </Button>
                                 </div>
-                                <Button
-                                  onClick={() => addToCart(item)}
-                                  disabled={item.stock === 0}
-                                >
-                                  Add to Cart
-                                </Button>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
+                              </Card>
+                            ))}
+                          </div>
+                        </ScrollArea>
                       )
                     )}
                   </div>
@@ -135,7 +151,7 @@ const Orders = () => {
 
               <div className="space-y-4">
                 {selectedItems.map((item) => (
-                  <Card key={item.id} className="p-4">
+                  <Card key={item.id} className="p-4 hover:bg-accent/50 transition-colors">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium">{item.name}</h3>
@@ -162,10 +178,11 @@ const Orders = () => {
                               );
                             }
                           }}
+                          className="hover:bg-destructive/10 transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </Button>
-                        <span>{item.quantity}</span>
+                        <span className="w-8 text-center">{item.quantity}</span>
                         <Button
                           variant="outline"
                           size="icon"
@@ -178,6 +195,7 @@ const Orders = () => {
                               )
                             )
                           }
+                          className="hover:bg-primary/10 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
