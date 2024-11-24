@@ -2,13 +2,23 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { ShoppingCart, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { InventoryItem } from "./inventory/columns";
 import { useNavigate } from "react-router-dom";
 import { generateInvoice } from "@/lib/invoiceGenerator";
+import { InventoryItem } from "./inventory/columns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export const Cart = () => {
-  const [items, setItems] = useState<(InventoryItem & { quantity: number })[]>([]);
+interface CartProps {
+  items: (InventoryItem & { quantity: number })[];
+  setItems: React.Dispatch<React.SetStateAction<(InventoryItem & { quantity: number })[]>>;
+}
+
+export const Cart = ({ items, setItems }: CartProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -33,7 +43,6 @@ export const Cart = () => {
     }
 
     try {
-      // In a real app, this would process payment first
       const invoice = await generateInvoice({
         items,
         total,
@@ -46,10 +55,7 @@ export const Cart = () => {
         description: "Your invoice has been generated"
       });
 
-      // Clear cart
       setItems([]);
-      
-      // Navigate to invoices page
       navigate("/invoices");
     } catch (error) {
       toast({
@@ -76,7 +82,7 @@ export const Cart = () => {
               <div>
                 <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-gray-500">
-                  ${item.price} x {item.quantity}
+                  ${item.price.toFixed(2)} x {item.quantity}
                 </p>
               </div>
               <Button
@@ -89,13 +95,28 @@ export const Cart = () => {
             </div>
           ))}
           
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t space-y-4">
             <div className="flex justify-between font-semibold">
               <span>Total:</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <Button className="w-full mt-4" onClick={handleCheckout}>
-              Checkout
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Payment Method</label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="credit-card">Credit Card</SelectItem>
+                  <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="cash">Cash</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button className="w-full" onClick={handleCheckout}>
+              Proceed to Payment
             </Button>
           </div>
         </div>

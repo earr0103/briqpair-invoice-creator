@@ -3,17 +3,19 @@ import { Card } from "@/components/ui/card";
 import { Cart } from "@/components/Cart";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Plus, Minus } from "lucide-react";
 import { useState } from "react";
 import { useInventoryItems } from "@/hooks/useInventoryItems";
 import { InventoryItem } from "@/components/inventory/columns";
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: inventoryItems, isLoading } = useInventoryItems();
   const [searchResults, setSearchResults] = useState<InventoryItem[]>([]);
   const { toast } = useToast();
+  const [selectedItems, setSelectedItems] = useState<(InventoryItem & { quantity: number })[]>([]);
 
   const handleSearch = () => {
     if (!searchTerm || !inventoryItems) {
@@ -44,6 +46,23 @@ const Orders = () => {
     }
   };
 
+  const addToCart = (item: InventoryItem) => {
+    const existingItem = selectedItems.find((i) => i.id === item.id);
+    if (existingItem) {
+      setSelectedItems(
+        selectedItems.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      );
+    } else {
+      setSelectedItems([...selectedItems, { ...item, quantity: 1 }]);
+    }
+    toast({
+      title: "Added to cart",
+      description: `${item.name} has been added to your cart`
+    });
+  };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -56,56 +75,120 @@ const Orders = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Product Search</h2>
-              <div className="flex gap-2 mb-4">
-                <Input
-                  placeholder="Search by SKU or product name"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                />
-                <Button onClick={handleSearch}>
-                  <Search className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {isLoading ? (
-                <div className="flex justify-center p-4">Loading...</div>
-              ) : (
-                searchResults.length > 0 && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full mb-4">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Products
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl">
+                  <DialogHeader>
+                    <DialogTitle>Search Products</DialogTitle>
+                  </DialogHeader>
                   <div className="space-y-4">
-                    {searchResults.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between border-b pb-2"
-                      >
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-gray-500">SKU: {item.sku}</p>
-                          <p className="text-sm text-gray-500">
-                            Stock: {item.stock}
-                          </p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Search by SKU or product name"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                      />
+                      <Button onClick={handleSearch}>
+                        <Search className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {isLoading ? (
+                      <div className="flex justify-center p-4">Loading...</div>
+                    ) : (
+                      searchResults.length > 0 && (
+                        <div className="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto">
+                          {searchResults.map((item) => (
+                            <Card key={item.id} className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="font-medium">{item.name}</h3>
+                                  <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                                  <p className="text-sm text-gray-500">
+                                    Stock: {item.stock}
+                                  </p>
+                                  <p className="font-medium mt-1">
+                                    ${item.price.toFixed(2)}
+                                  </p>
+                                </div>
+                                <Button
+                                  onClick={() => addToCart(item)}
+                                  disabled={item.stock === 0}
+                                >
+                                  Add to Cart
+                                </Button>
+                              </div>
+                            </Card>
+                          ))}
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium">
-                            ${item.price.toFixed(2)}
-                          </p>
-                          <Button
-                            size="sm"
-                            className="mt-2"
-                            disabled={item.stock === 0}
-                          >
-                            Add to Cart
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
-                )
-              )}
+                </DialogContent>
+              </Dialog>
+
+              <div className="space-y-4">
+                {selectedItems.map((item) => (
+                  <Card key={item.id} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">{item.name}</h3>
+                        <p className="text-sm text-gray-500">
+                          ${item.price.toFixed(2)} x {item.quantity}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            if (item.quantity > 1) {
+                              setSelectedItems(
+                                selectedItems.map((i) =>
+                                  i.id === item.id
+                                    ? { ...i, quantity: i.quantity - 1 }
+                                    : i
+                                )
+                              );
+                            } else {
+                              setSelectedItems(
+                                selectedItems.filter((i) => i.id !== item.id)
+                              );
+                            }
+                          }}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span>{item.quantity}</span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() =>
+                            setSelectedItems(
+                              selectedItems.map((i) =>
+                                i.id === item.id
+                                  ? { ...i, quantity: i.quantity + 1 }
+                                  : i
+                              )
+                            )
+                          }
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </Card>
 
-            <Cart />
+            <Cart items={selectedItems} setItems={setSelectedItems} />
           </div>
         </div>
       </main>
